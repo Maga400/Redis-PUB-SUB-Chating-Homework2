@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Input and Button with Tag Helpers";
+}
+
+<div class="form-container">
+    <h2>Submit Name</h2>
+
+    <!-- Form -->
+    <form asp-controller="Home" asp-action="SubmitName" method="post">
+        <!-- Input -->
+        <input type="text" name="Name" class="form-control" placeholder="Enter your name..." required />
+
+        <!-- Button -->
+        <button type="submit" class="btn">Submit</button>
+    </form>
+
+    @if(ViewBag.Message != null)
+    {
+        <h1>@ViewBag.Message</h1>
+        
+    }
+</div>
+
+<style>
+    .form-container {
+        text-align: center;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 50px auto;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn:not(:disabled):hover {
+            background-color: #0056b3;
+        }
+</style>
