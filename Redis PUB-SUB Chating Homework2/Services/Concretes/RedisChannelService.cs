@@ -8,7 +8,7 @@ namespace Redis_PUB_SUB_Chating_Homework2.Services.Concretes
         private readonly IConnectionMultiplexer _redis;
         public RedisChannelService(IConnectionMultiplexer redis)
         {
-            _redis = redis;
+            _redis = redis; 
         }
         public async Task CreateChannelAsync(string channelName)
         {
