@@ -6,7 +6,7 @@ namespace Redis_PUB_SUB_Chating_Homework2.Controllers
 {
     public class HomeController : Controller
     {
-
+        \
         //var muxer = ConnectionMultiplexer.Connect(
         //    new ConfigurationOptions
         //    {
