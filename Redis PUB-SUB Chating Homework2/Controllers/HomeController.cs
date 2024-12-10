@@ -1,51 +1,64 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Redis_PUB_SUB_Chating_Homework2.Models;
+using Redis_PUB_SUB_Chating_Homework2.Services.Abstracts;
+using Redis_PUB_SUB_Chating_Homework2.Services.Concretes;
 using System.Diagnostics;
 
 namespace Redis_PUB_SUB_Chating_Homework2.Controllers
 {
     public class HomeController : Controller
     {
-        
-
-
-        //var muxer = ConnectionMultiplexer.Connect(
-        //    new ConfigurationOptions
-        //    {
-        //        EndPoints = { { "redis-13898.c261.us-east-1-4.ec2.redns.redis-cloud.com", 13898 } },
-        //        User = "default",
-        //        Password = "Bjc65AaWcTrZ9JC1e3OLamCFZP6FeCY4"
-        //    }
-        //);
-
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IRedisChannelService _redisChannelService;
+        public HomeController(IRedisChannelService redisChannelService)
         {
-            _logger = logger;
+            _redisChannelService = redisChannelService;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string selectedChannel = null)
         {
+            var channels = await _redisChannelService.GetAllChannelsAsync();
+            ViewBag.Channels = channels;
+
+            if (!string.IsNullOrEmpty(selectedChannel))
+            {
+                var messages = await _redisChannelService.GetChannelMessagesAsync(selectedChannel);
+                ViewBag.SelectedChannelMessages = messages;
+                ViewBag.SelectedChannelName = selectedChannel;
+            }
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
         [HttpPost]
-        public IActionResult SubmitName(string name)
+        public async Task<IActionResult> CreateChannel(string channelName)
         {
-            // Name değerini alır ve işlem yapar
-            ViewBag.Message = $"Received name: {name}";
-            return View("Index"); // Gerekirse başka bir View'e yönlendirin
+            await _redisChannelService.CreateChannelAsync(channelName);
+            return RedirectToAction("Index");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public async Task<IActionResult> SelectChannel(string channelName)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var messages = await _redisChannelService.GetChannelMessagesAsync(channelName);
+            ViewBag.SelectedChannelMessages = messages;
+            ViewBag.SelectedChannelName = channelName;
+
+            var channels = await _redisChannelService.GetAllChannelsAsync();
+            ViewBag.Channels = channels;
+
+            return View("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SendMessage(string channelName, string message)
+        {
+            if (!string.IsNullOrWhiteSpace(channelName) && !string.IsNullOrWhiteSpace(message))
+            {
+                await _redisChannelService.AddMessageToChannelAsync(channelName, message);
+            }
+
+            return RedirectToAction("Index", new { selectedChannel = channelName });
+        }
+
     }
 }
